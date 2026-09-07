@@ -13,11 +13,11 @@
   "frame": [
     "................",
     "....oo....oo....",
-    "...offooooffo...",
-    "..offfffffff...",
-    ".offfloo lofff.",
-    ".offooooooooff.",
-    "offo.ow.wo.offo",
+    "...offo..offo...",
+    "..offfffffff o..",
+    ".offffffffffff.",
+    ".offlfooofflff.",
+    "offo.owwo.oooff",
     "offo.ooooo.offo",
     ".off.fffff.foff",
     ".offffffffffff.",
@@ -27,6 +27,5 @@
     ".ooofffffffff oo",
     "...oo..oo..oo..",
     "................"
-  ],
-  "note": "16x16 one-point komainu. The single space in row 5 and row 14 is normalized to transparent; HTML renderer trims spaces."
+  ]
 }
