@@ -1,0 +1,80 @@
+schema: dots/mcp-server/v1
+name: dots
+version: "1.0"
+description: >
+  MCP interface for the dots canonical data, schema, validation,
+  conversion, and search API.
+
+transport:
+  stdio: true
+  streamable_http: true
+
+api:
+  contract: openapi.yaml
+  runtime: go
+
+resources:
+  - uri: dots://object/{id}
+    description: Canonical dots object
+  - uri: dots://schema/{schemaId}
+    description: Dots schema definition
+
+prompts:
+  - name: describe_object
+    description: Explain a dots object semantically
+  - name: transform_object
+    description: Plan a format or schema transformation
+
+tools:
+  - name: dots.get
+    description: Get a canonical object by id
+    input:
+      id: string
+
+  - name: dots.search
+    description: Search canonical objects by text or structured filters
+    input:
+      query: string
+      schema: string?
+      limit: integer?
+
+  - name: dots.create
+    description: Create a canonical object
+    input:
+      schema: string
+      id: string?
+      data: object
+
+  - name: dots.validate
+    description: Validate data against a dots schema
+    input:
+      schema: string
+      data: object
+
+  - name: dots.convert
+    description: Convert between supported representations
+    input:
+      source_format: string
+      target_format: string
+      data: object
+
+  - name: dots.schema
+    description: Get a schema definition
+    input:
+      schema: string
+
+  - name: dots.describe
+    description: Produce a semantic description of a canonical object
+    input:
+      id: string
+
+security:
+  policy: least_privilege
+  destructive_tools_require_confirmation: true
+
+principles:
+  canonical_source: json
+  schema_source: openapi.yaml
+  mcp_role: ai_interface
+  api_role: system_interface
+  mcp_must_not_duplicate_domain_logic: true
