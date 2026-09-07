@@ -1,0 +1,440 @@
+openapi: 3.1.0
+info:
+  title: Bonsai Dots API
+  version: 0.1.0
+  description: |
+    Canonical data API for the Bonsai ecosystem.
+    Dots owns schemas, canonical JSON representations, validation,
+    conversion and analytical projections. Domain semantics remain in
+    ecosystem/domain repositories.
+servers:
+  - url: /api/v1
+    description: Dots API v1
+
+tags:
+  - name: objects
+    description: Canonical data objects
+  - name: schemas
+    description: Schema registry and validation
+  - name: conversions
+    description: Format conversion
+  - name: search
+    description: Semantic and structural search
+  - name: health
+    description: Service health
+
+paths:
+  /health:
+    get:
+      tags: [health]
+      operationId: health
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Health'
+
+  /objects:
+    get:
+      tags: [objects]
+      operationId: listObjects
+      parameters:
+        - $ref: '#/components/parameters/SchemaQuery'
+        - $ref: '#/components/parameters/TypeQuery'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Cursor'
+      responses:
+        '200':
+          description: Object list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectPage'
+    post:
+      tags: [objects]
+      operationId: createObject
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DotsObject'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DotsObject'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /objects/{id}:
+    parameters:
+      - $ref: '#/components/parameters/ObjectId'
+    get:
+      tags: [objects]
+      operationId: getObject
+      responses:
+        '200':
+          description: Canonical object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DotsObject'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags: [objects]
+      operationId: replaceObject
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DotsObject'
+      responses:
+        '200':
+          description: Replaced object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DotsObject'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+    delete:
+      tags: [objects]
+      operationId: deleteObject
+      responses:
+        '204':
+          description: Deleted
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /schemas:
+    get:
+      tags: [schemas]
+      operationId: listSchemas
+      responses:
+        '200':
+          description: Registered schemas
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SchemaDescriptor'
+
+  /schemas/{schemaId}:
+    parameters:
+      - $ref: '#/components/parameters/SchemaId'
+    get:
+      tags: [schemas]
+      operationId: getSchema
+      responses:
+        '200':
+          description: Schema descriptor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SchemaDescriptor'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /validate:
+    post:
+      tags: [schemas]
+      operationId: validateObject
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ValidateRequest'
+      responses:
+        '200':
+          description: Validation result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationResult'
+
+  /convert:
+    post:
+      tags: [conversions]
+      operationId: convert
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConvertRequest'
+      responses:
+        '200':
+          description: Converted representation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConvertResponse'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /search:
+    post:
+      tags: [search]
+      operationId: search
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchRequest'
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResponse'
+
+components:
+  parameters:
+    ObjectId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+    SchemaId:
+      name: schemaId
+      in: path
+      required: true
+      schema:
+        type: string
+    SchemaQuery:
+      name: schema
+      in: query
+      schema:
+        type: string
+    TypeQuery:
+      name: type
+      in: query
+      schema:
+        type: string
+    Limit:
+      name: limit
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+    Cursor:
+      name: cursor
+      in: query
+      schema:
+        type: string
+
+  responses:
+    NotFound:
+      description: Resource not found
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    ValidationError:
+      description: Request validation failed
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+
+  schemas:
+    DotsObject:
+      type: object
+      required: [schema, id, type, data]
+      properties:
+        schema:
+          type: string
+          description: Canonical schema identifier, e.g. dots/pixel-grid/v1
+        id:
+          type: string
+        type:
+          type: string
+          description: Object type inside the schema namespace
+        version:
+          type: string
+          default: '1'
+        metadata:
+          type: object
+          additionalProperties: true
+        data:
+          type: object
+          additionalProperties: true
+
+    ObjectPage:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/DotsObject'
+        next_cursor:
+          type: string
+          nullable: true
+
+    SchemaDescriptor:
+      type: object
+      required: [id, version, uri]
+      properties:
+        id:
+          type: string
+        version:
+          type: string
+        uri:
+          type: string
+        description:
+          type: string
+        content_type:
+          type: string
+          default: application/json
+
+    ValidateRequest:
+      type: object
+      required: [schema, data]
+      properties:
+        schema:
+          type: string
+        data:
+          type: object
+          additionalProperties: true
+
+    ValidationResult:
+      type: object
+      required: [valid]
+      properties:
+        valid:
+          type: boolean
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ValidationIssue'
+        warnings:
+          type: array
+          items:
+            $ref: '#/components/schemas/ValidationIssue'
+
+    ValidationIssue:
+      type: object
+      required: [path, message]
+      properties:
+        path:
+          type: string
+        message:
+          type: string
+        code:
+          type: string
+
+    ConvertRequest:
+      type: object
+      required: [input, from, to]
+      properties:
+        input:
+          description: Canonical object or representation to convert
+          type: object
+          additionalProperties: true
+        from:
+          type: string
+          description: Source representation, e.g. json, csv, png
+        to:
+          type: string
+          description: Target representation, e.g. json, csv, parquet, png
+        options:
+          type: object
+          additionalProperties: true
+
+    ConvertResponse:
+      type: object
+      required: [format, data]
+      properties:
+        format:
+          type: string
+        schema:
+          type: string
+        data:
+          description: Converted representation
+          oneOf:
+            - type: object
+              additionalProperties: true
+            - type: array
+              items: {}
+        metadata:
+          type: object
+          additionalProperties: true
+
+    SearchRequest:
+      type: object
+      properties:
+        q:
+          type: string
+        schema:
+          type: string
+        type:
+          type: string
+        filters:
+          type: object
+          additionalProperties: true
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 20
+
+    SearchResponse:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            required: [id, score, object]
+            properties:
+              id:
+                type: string
+              score:
+                type: number
+              object:
+                $ref: '#/components/schemas/DotsObject'
+
+    Health:
+      type: object
+      required: [status, version]
+      properties:
+        status:
+          type: string
+          enum: [ok]
+        version:
+          type: string
+
+    Problem:
+      type: object
+      required: [title, status]
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        status:
+          type: integer
+        detail:
+          type: string
+        instance:
+          type: string
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ValidationIssue'
