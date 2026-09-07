@@ -1,8 +1,8 @@
 {
   "name": "komainu-onepoint",
   "version": 1,
-  "grid": { "width": 16, "height": 16 },
-  "pixelSize": 24,
+  "grid": { "width": 12, "height": 12 },
+  "pixelSize": 32,
   "palette": {
     ".": "transparent",
     "o": "#34251b",
@@ -11,21 +11,17 @@
     "w": "#eee1c7"
   },
   "frame": [
-    "................",
-    "....oo....oo....",
-    "...offo..offo...",
-    "..offfffffff o..",
-    ".offffffffffff.",
-    ".offlfooofflff.",
-    "offo.owwo.oooff",
-    "offo.ooooo.offo",
-    ".off.fffff.foff",
-    ".offffffffffff.",
-    "..offfffffffo..",
-    "..off..ff..ff..",
-    ".offf..ff..fff.",
-    ".ooofffffffff oo",
-    "...oo..oo..oo..",
-    "................"
+    "..oo..oo....",
+    ".offooffo...",
+    "offfffffff..",
+    "offlffflff..",
+    "ofoowwfoooff",
+    "ofooooofooff",
+    ".offfffffo..",
+    ".offfffffo..",
+    "..offofff...",
+    "..offoffo...",
+    ".ooofffooo..",
+    "....oo......"
   ]
 }
