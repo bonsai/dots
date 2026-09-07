@@ -1,122 +1,163 @@
 schema: dots/extension-ontology/v1
-name: file-extension-ontology
+name: global-extension-ontology
 description: >
-  ドット・Patternデータを、原本・交換・分析・表示・機械/ドメイン変換の
-  役割で分類する拡張子オントロジ。
+  グローバルな拡張子を、表現・交換・分析・表示・実行・ドメイン変換の
+  役割で分類するオントロジ。拡張子は表現形式を示し、意味はschemaが定義する。
 
 principles:
+  extension_describes_representation: true
+  schema_describes_semantics: true
   canonical: json
-  analytics: parquet
   exchange: csv
-  api: json
-  rule: extension_describes_transport_role_not_semantics
+  analytics: parquet
+  analytics_engine: bigquery
+  ml: bqml
 
 extensions:
   .json:
     role: canonical
     type: structured_data
-    use:
-      - pixel_grid
-      - pattern
-      - schema_instance
-      - api_payload
+    use: [pixel_grid, pattern, schema_instance, api_payload]
     canonical: true
-
   .yaml:
     role: definition
     type: configuration
-    use:
-      - ontology
-      - schema_definition
-      - workflow
-      - adapter_definition
-
+    use: [ontology, schema_definition, workflow, adapter_definition]
+  .yml:
+    role: definition
+    type: configuration
+    alias_of: .yaml
   .csv:
     role: exchange
     type: tabular_data
-    use:
-      - cell_dataset
-      - palette_table
-      - feature_table
-      - bqml_import
+    use: [cell_dataset, palette_table, feature_table, bqml_import]
     shape:
-      cell_dataset: "one_cell_per_row"
-
+      cell_dataset: one_cell_per_row
+  .tsv:
+    role: exchange
+    type: tabular_data
+    use: [cell_dataset, feature_table]
   .parquet:
     role: analytics
     type: columnar_data
-    use:
-      - pattern_features
-      - cell_dataset
-      - bqml_training
-      - bigquery_transport
+    use: [pattern_features, cell_dataset, bqml_training, bigquery_transport]
     preferred_for: large_scale_analysis
+  .ndjson:
+    role: streaming_exchange
+    type: line_delimited_json
+    use: [event_stream, bulk_import, api_stream]
+  .jsonl:
+    role: streaming_exchange
+    type: line_delimited_json
+    alias_of: .ndjson
 
   .png:
     role: visual
     type: raster_image
-    use:
-      - source_image
-      - preview
-      - pixel_grid_import
-
+    use: [source_image, preview, pixel_grid_import]
+  .jpg:
+    role: visual
+    type: raster_image
+    use: [source_image, preview]
+  .jpeg:
+    role: visual
+    type: raster_image
+    alias_of: .jpg
+  .webp:
+    role: visual
+    type: raster_image
+    use: [source_image, preview, web_delivery]
+  .gif:
+    role: visual
+    type: raster_image
+    use: [animation, preview]
   .bmp:
     role: machine_adapter_input
     type: raster_image
-    use:
-      - tc2_bitmap
-      - pixel_pattern
-
+    use: [tc2_bitmap, pixel_pattern]
   .tiff:
     role: visual_exchange
     type: raster_image
-    use:
-      - high_resolution_source
-      - production_artwork
-
+    use: [high_resolution_source, production_artwork]
   .svg:
     role: visual
     type: vector_image
-    use:
-      - vector_pattern
-      - preview
-      - cutting_print_reference
+    use: [vector_pattern, preview, cutting_print_reference]
 
   .wif:
-    role: textile_interchange
+    role: domain_interchange
     type: weaving_interchange
-    owner: textile
-    use:
-      - weave_draft
-      - threading
-      - treadling
-      - tieup
-      - liftplan
-
+    domain: textile
+    use: [weave_draft, threading, treadling, tieup, liftplan]
   .tc2:
     role: machine_specific
     type: loom_bitmap
-    owner: textile
-    use:
-      - jacquard_loom_input
-      - tc2_machine_output
+    domain: textile
+    use: [jacquard_loom_input, tc2_machine_output]
+
+  .md:
+    role: documentation
+    type: human_readable
+    use: [readme, specification, knowledge]
+  .txt:
+    role: plain_text
+    type: human_readable
+    use: [raw_text, import, notes]
+  .html:
+    role: presentation
+    type: web_document
+    use: [web_ui, report, documentation]
+  .css:
+    role: presentation_style
+    type: stylesheet
+    use: [web_ui]
+  .js:
+    role: runtime_implementation
+    type: source_code
+    use: [web_runtime, tooling]
+  .ts:
+    role: runtime_implementation
+    type: source_code
+    use: [typed_web_runtime, tooling]
+  .py:
+    role: runtime_implementation
+    type: source_code
+    use: [data_processing, ml, tooling]
+  .go:
+    role: runtime_implementation
+    type: source_code
+    use: [api, cli, service, tooling]
+  .sql:
+    role: analytical_definition
+    type: query_language
+    use: [schema, query, feature_engineering, bqml]
+  .ipynb:
+    role: analytical_notebook
+    type: executable_document
+    use: [exploration, analysis, model_experiment]
 
 roles:
   canonical:
     extensions: [.json]
     owner: dots
   definition:
-    extensions: [.yaml]
+    extensions: [.yaml, .yml]
     owner: dots
   exchange:
-    extensions: [.csv]
+    extensions: [.csv, .tsv, .ndjson, .jsonl]
     owner: dots
   analytics:
-    extensions: [.parquet]
+    extensions: [.parquet, .sql, .ipynb]
     owner: dots
   visual:
-    extensions: [.png, .bmp, .tiff, .svg]
+    extensions: [.png, .jpg, .jpeg, .webp, .gif, .bmp, .tiff, .svg]
     owner: dots
+  documentation:
+    extensions: [.md, .txt, .html]
+    owner: domain_or_project
+  runtime:
+    extensions: [.go, .py, .ts, .js]
+    owner: implementation
   domain_interchange:
     extensions: [.wif]
     owner: textile
@@ -131,14 +172,12 @@ pattern_pipeline:
   analytics: .parquet
   analytics_engine: bigquery
   ml: bqml
-  textile_interchange: .wif
+  domain_interchange: .wif
   machine_adapter: .tc2
 
 bqml:
-  input_preference:
-    feature_dataset: parquet
-    cell_dataset: parquet
-    small_exchange_dataset: csv
+  preferred_input: parquet
+  compatible_exchange: csv
   rule: >
     BQMLの学習対象は拡張子ではなく、Patternから生成した特徴量を中心とする。
     JSONは原本として保持し、CSV/ParquetはJSONから再生成可能な分析投影とする。
@@ -152,7 +191,7 @@ ownership:
     - validation
     - conversion
     - analytics_projection
-  textile:
-    - textile_semantics
-    - weave_draft
+  domain_repositories:
+    - domain_semantics
+    - domain_interchange
     - machine_specific_adapters
