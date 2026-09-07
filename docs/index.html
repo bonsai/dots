@@ -1,3 +1,39 @@
 <!doctype html>
 <html lang="ja">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>bonsai/dots — Demos</title><style>body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif;max-width:900px;margin:auto;padding:32px;background:#111;color:#eee}a{color:#c8ed88;text-decoration:none}.card{display:block;padding:20px;margin:14px 0;background:#1d1d1d;border:1px solid #333;border-radius:16px}.sub{color:#aaa}</style></head><body><h1>🌱 bonsai/dots</h1><p class="sub">Interactive demos</p><a class="card" href="komainu-qr.html"><h2>⛩️ 狛犬QR</h2><p>QRコードをドット絵の狛犬として表示するデモ。</p></a><a class="card" href="pixel-pod-animation.html"><h2>🟩 Pixel Pod</h2><p>JSONを編集してドット絵アニメーションをリアルタイムに編集するデモ。</p></a><p><a href="https://github.com/bonsai/dots">GitHub repository →</a></p></body></html>
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>bonsai/dots — Demos</title>
+<style>
+body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif;max-width:900px;margin:auto;padding:32px;background:#111;color:#eee}
+a{color:#c8ed88;text-decoration:none}.card{display:block;padding:20px;margin:14px 0;background:#1d1d1d;border:1px solid #333;border-radius:16px}.sub{color:#aaa}.onepoint{display:flex;align-items:center;gap:18px}.komainu{width:128px;height:128px;image-rendering:pixelated;background:#eee1c7;border-radius:12px;padding:8px;box-sizing:border-box}.tag{font-size:12px;color:#aaa;margin-top:6px}
+</style>
+</head>
+<body>
+<h1>🌱 bonsai/dots</h1>
+<p class="sub">Interactive demos</p>
+
+<div class="card onepoint">
+  <canvas id="komainu" class="komainu" width="128" height="128" aria-label="狛犬ワンポイント"></canvas>
+  <div><h2>⛩️ 狛犬ワンポイント</h2><p>JSONで定義したドット絵をHTML Canvasで再現。小さなアイコンとして使える狛犬。</p><div class="tag">JSON → Canvas / SVG</div></div>
+</div>
+
+<a class="card" href="komainu-onepoint.html"><h2>⛩️ 狛犬ワンポイント EDITOR</h2><p>JSONを元にドット絵とベクター表現を確認。</p></a>
+<a class="card" href="komainu-qr.html"><h2>⛩️ 狛犬QR</h2><p>QRコードをドット絵の狛犬として表示するデモ。</p></a>
+<a class="card" href="pixel-pod-animation.html"><h2>🟩 Pixel Pod</h2><p>JSONを編集してドット絵アニメーションをリアルタイムに編集するデモ。</p></a>
+<p><a href="https://github.com/bonsai/dots">GitHub repository →</a></p>
+
+<script>
+const K={
+ grid:{width:16,height:16},
+ palette:{'.':null,o:'#34251b',f:'#6b4428',l:'#a87548',w:'#eee1c7'},
+ frame:[
+  '................','....oo....oo....','...offooooffo...','..offfffffff...','..offfloo lofff.',' .offooooooooff.'.trimStart(),'offo.ow.wo.offo','.offo.ooooo.offo','.off.fffff.foff','.offffffffffff.','..offfffffffo..','..off..ff..ff..','.offf..ff..fff.','.ooofffffffff oo'.replaceAll(' ','.'),'...oo..oo..oo..','................'
+ ]
+};
+const c=document.querySelector('#komainu'),x=c.getContext('2d'),n=8;
+x.imageSmoothingEnabled=false;x.fillStyle=K.palette.w;x.fillRect(0,0,128,128);
+const cell=128/K.grid.width;
+K.frame.forEach((row,y)=>[...row].forEach((ch,i)=>{const col=K.palette[ch]??K.palette['.'];if(col){x.fillStyle=col;x.fillRect(i*cell,y*cell,cell,cell)}}));
+</script>
+</body>
+</html>
