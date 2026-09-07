@@ -1,0 +1,158 @@
+schema: dots/extension-ontology/v1
+name: file-extension-ontology
+description: >
+  ドット・Patternデータを、原本・交換・分析・表示・機械/ドメイン変換の
+  役割で分類する拡張子オントロジ。
+
+principles:
+  canonical: json
+  analytics: parquet
+  exchange: csv
+  api: json
+  rule: extension_describes_transport_role_not_semantics
+
+extensions:
+  .json:
+    role: canonical
+    type: structured_data
+    use:
+      - pixel_grid
+      - pattern
+      - schema_instance
+      - api_payload
+    canonical: true
+
+  .yaml:
+    role: definition
+    type: configuration
+    use:
+      - ontology
+      - schema_definition
+      - workflow
+      - adapter_definition
+
+  .csv:
+    role: exchange
+    type: tabular_data
+    use:
+      - cell_dataset
+      - palette_table
+      - feature_table
+      - bqml_import
+    shape:
+      cell_dataset: "one_cell_per_row"
+
+  .parquet:
+    role: analytics
+    type: columnar_data
+    use:
+      - pattern_features
+      - cell_dataset
+      - bqml_training
+      - bigquery_transport
+    preferred_for: large_scale_analysis
+
+  .png:
+    role: visual
+    type: raster_image
+    use:
+      - source_image
+      - preview
+      - pixel_grid_import
+
+  .bmp:
+    role: machine_adapter_input
+    type: raster_image
+    use:
+      - tc2_bitmap
+      - pixel_pattern
+
+  .tiff:
+    role: visual_exchange
+    type: raster_image
+    use:
+      - high_resolution_source
+      - production_artwork
+
+  .svg:
+    role: visual
+    type: vector_image
+    use:
+      - vector_pattern
+      - preview
+      - cutting_print_reference
+
+  .wif:
+    role: textile_interchange
+    type: weaving_interchange
+    owner: textile
+    use:
+      - weave_draft
+      - threading
+      - treadling
+      - tieup
+      - liftplan
+
+  .tc2:
+    role: machine_specific
+    type: loom_bitmap
+    owner: textile
+    use:
+      - jacquard_loom_input
+      - tc2_machine_output
+
+roles:
+  canonical:
+    extensions: [.json]
+    owner: dots
+  definition:
+    extensions: [.yaml]
+    owner: dots
+  exchange:
+    extensions: [.csv]
+    owner: dots
+  analytics:
+    extensions: [.parquet]
+    owner: dots
+  visual:
+    extensions: [.png, .bmp, .tiff, .svg]
+    owner: dots
+  domain_interchange:
+    extensions: [.wif]
+    owner: textile
+  machine_specific:
+    extensions: [.tc2]
+    owner: textile
+
+pattern_pipeline:
+  source: .png
+  canonical: .json
+  cell_exchange: .csv
+  analytics: .parquet
+  analytics_engine: bigquery
+  ml: bqml
+  textile_interchange: .wif
+  machine_adapter: .tc2
+
+bqml:
+  input_preference:
+    feature_dataset: parquet
+    cell_dataset: parquet
+    small_exchange_dataset: csv
+  rule: >
+    BQMLの学習対象は拡張子ではなく、Patternから生成した特徴量を中心とする。
+    JSONは原本として保持し、CSV/ParquetはJSONから再生成可能な分析投影とする。
+
+ownership:
+  dots:
+    - canonical_data
+    - schema
+    - api
+    - codecs
+    - validation
+    - conversion
+    - analytics_projection
+  textile:
+    - textile_semantics
+    - weave_draft
+    - machine_specific_adapters
