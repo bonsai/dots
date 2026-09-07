@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>狛犬ワンポイント｜JSON Pixel Art</title>
+<style>
+:root{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif;background:#171411;color:#f4ead8}
+*{box-sizing:border-box}body{margin:0}.wrap{max-width:900px;margin:auto;padding:20px}.card{background:#211b17;border:1px solid #45382d;border-radius:18px;padding:18px;margin-bottom:14px}h1{margin:0 0 6px}.sub{color:#b9aa98}.stage{display:grid;place-items:center;min-height:420px;background:#eee1c7;border-radius:14px}canvas{width:320px;height:320px;image-rendering:pixelated;image-rendering:crisp-edges}.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}button{border:0;border-radius:10px;padding:10px 14px;background:#eee1c7;color:#211b17;font-weight:700;cursor:pointer}label{font-size:12px;color:#b9aa98}textarea{width:100%;height:280px;margin-top:8px;border-radius:12px;border:1px solid #514237;background:#100d0b;color:#eee1c7;padding:12px;font:12px/1.5 ui-monospace,monospace}a{color:#d9b88d}.hint{font-size:12px;color:#9f9182;line-height:1.6;margin-top:10px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<section class="card"><h1>⛩️ 狛犬ワンポイント</h1><div class="sub">1つのJSONからドット画像とベクター風表示を再現</div></section>
+<section class="card"><div class="stage"><canvas id="canvas" width="384" height="384"></canvas></div></section>
+<section class="card">
+<div class="row"><button id="render">JSONを反映</button><button id="copy">JSONをコピー</button><a href="../assets/komainu.svg" target="_blank">SVGを見る</a></div>
+<label for="json">komainu.json</label>
+<textarea id="json"></textarea>
+<div class="hint">透明セルは描画せず、1セル=32pxの完全なドットとしてCanvasに描画します。JSONを変えると、その場で狛犬の形・色を変更できます。</div>
+</section>
+</div>
+<script>
+const initial={name:"komainu-onepoint",version:1,grid:{width:12,height:12},pixelSize:32,palette:{".":"transparent",o:"#34251b",f:"#6b4428",l:"#a87548",w:"#eee1c7"},frame:["..oo..oo....",".offooffo...","offfffffff..","offlffflff..","ofoowwfoooff","ofooooofooff",".offfffffo..",".offfffffo..","..offofff...","..offoffo...",".ooofffooo..","....oo......"]};
+const ta=document.querySelector('#json'),canvas=document.querySelector('#canvas'),ctx=canvas.getContext('2d');
+ta.value=JSON.stringify(initial,null,2);
+function draw(data){const w=data.grid.width,h=data.grid.height,ps=Math.floor(Math.min(canvas.width/w,canvas.height/h));ctx.clearRect(0,0,canvas.width,canvas.height);ctx.fillStyle='#eee1c7';ctx.fillRect(0,0,canvas.width,canvas.height);const ox=Math.floor((canvas.width-w*ps)/2),oy=Math.floor((canvas.height-h*ps)/2);for(let y=0;y<h;y++){const row=data.frame[y]||'';for(let x=0;x<w;x++){const color=data.palette[row[x]||'.'];if(!color||color==='transparent')continue;ctx.fillStyle=color;ctx.fillRect(ox+x*ps,oy+y*ps,ps,ps)}}}
+function apply(){try{const data=JSON.parse(ta.value);if(!data.grid||!data.frame)throw Error('grid/frame がありません');draw(data)}catch(e){alert('JSONエラー: '+e.message)}}
+document.querySelector('#render').onclick=apply;document.querySelector('#copy').onclick=async()=>{await navigator.clipboard.writeText(ta.value);document.querySelector('#copy').textContent='コピーしました';setTimeout(()=>document.querySelector('#copy').textContent='JSONをコピー',1200)};apply();
+</script>
+</body>
+</html>
