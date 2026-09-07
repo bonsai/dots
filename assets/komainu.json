@@ -1,0 +1,32 @@
+{
+  "name": "komainu-onepoint",
+  "version": 1,
+  "grid": { "width": 16, "height": 16 },
+  "pixelSize": 24,
+  "palette": {
+    ".": "transparent",
+    "o": "#34251b",
+    "f": "#6b4428",
+    "l": "#a87548",
+    "w": "#eee1c7"
+  },
+  "frame": [
+    "................",
+    "....oo....oo....",
+    "...offooooffo...",
+    "..offfffffff...",
+    ".offfloo lofff.",
+    ".offooooooooff.",
+    "offo.ow.wo.offo",
+    "offo.ooooo.offo",
+    ".off.fffff.foff",
+    ".offffffffffff.",
+    "..offfffffffo..",
+    "..off..ff..ff..",
+    ".offf..ff..fff.",
+    ".ooofffffffff oo",
+    "...oo..oo..oo..",
+    "................"
+  ],
+  "note": "16x16 one-point komainu. The single space in row 5 and row 14 is normalized to transparent; HTML renderer trims spaces."
+}
